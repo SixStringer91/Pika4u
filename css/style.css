@@ -741,6 +741,10 @@ width: 100%;
   /* .post:last-child{
     margin-bottom: 64px;
   } */
+  .add-post  {
+  width: 100%;
+}
+
   .posts-wrapper{
     width: 100%;
     max-width: 100%;;
