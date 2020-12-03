@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pika4u - главная</title>
+<link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.1.1/firebase-app.js" defer></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+      https://firebase.google.com/docs/web/setup#available-libraries -->
+      <script src="https://www.gstatic.com/firebasejs/8.1.1/firebase-auth.js" defer></script>
+      <script src="https://www.gstatic.com/firebasejs/8.1.1/firebase-database.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <div class="modal-wrapper">
+  <div class="modal">
+    <div class="modal-inner">
+      <p class="modal-text">какойто текст</p>
+    </div>
+    <button class="button modal-confirm">
+Ок
+    </button>
+  </div>
+</div>
+  <header class="header">
+<div class="header-wrapper container">
+  <div class="header-wrapper-logo">
+    <!-- <img  class="header-logo-pica"src="img/pika4u.svg" alt=""> -->
+    <svg width="30" height="30" class="icon header-logo-pica">
+      <use xlink:href="img/icons.svg#pika4u"></use>
+    </svg>
+    <svg width="50" height="24" class="icon icon-logo">
+      <use xlink:href="img/icons.svg#logo"></use>
+    </svg>
+  </div>
+
+  <nav class="header-nav">
+    <ul class="header-menu">
+      <li class="header-menu-item"><a href="#" class="header-menu-link">Свежее </a></li>
+      <li class="header-menu-item"><a href="#" class="header-menu-link">Лучшее</a></li>
+      <li class="header-menu-item"><a href="#" class="header-menu-link">Горячее</a></li>
+      <li class="header-menu-item"><a href="#" class="header-menu-link">Подписки</a></li>
+      <a href="#" class="menu-toogle" id="menu-toogle">
+        <span></span>
+        <span></span>
+        <span></span>
+        
+          </a>
+    </ul>
+
+  </nav>
+  <div class="input-group search">
+    <input type="search" class="search-input" placeholder="не работает">
+    <button class="search-button">
+      <svg width='16' height='16' class="icon search-icon">
+        <use xlink:href="img/icons.svg#icon-right"></use>
+      </svg>
+    </button>
+  </div>
+
+</div>
+
+
+
+  </header>
+
+  <div class="content container">
+    <div class="posts-wrapper">
+<main class="posts">
+</main>
+
+  <div class="comment-block">
+    <div class="comment-header">
+      <a href="#" class="comments-filter all-comments chosen">Все комментарии</a>
+      <a href="#" class="comments-filter author-comments">Автор</a>
+      </div>
+      <div class="comment-block_content"></div>
+  </div>
+  <form class="add-comment" >
+    <textarea name="text" class="add-text_comment" placeholder="Текст вашего комментария"></textarea> 
+    <div class="add-comment_buttons">
+    <button type="submit" class="button">Отправить</button></div>
+    </form>
+</div>
+<form action="#" class="add-post visible">
+  <input type="text" name="title" class="add-title" placeholder="Заголовок поста">
+  <textarea name="text" id="text" class="add-text" placeholder="Текст вашего поста"></textarea>
+  <input type="text" name="tags" class="add-title" placeholder="Введите теги через запятую">
+<div class="add-buttons">
+  <button type="submit" class="button button-add-text"><svg width='20' height = '20' class="icon icon-flame">
+    <use xlink:href="img/icons.svg#flame"></use>
+  </svg><span class="button-new-text">Опубликовать пост</span></button>
+<!-- <button  class="button button-outline">
+  <svg width='14' height='12' class="icon icon-video">
+    <use xlink:href="img/icons.svg#video"></use>
+  </svg>Видео
+</button>
+<button class="button button-outline">
+  <svg width='14' height='12' class="icon icon-photo">
+    <use xlink:href="img/icons.svg#photo"></use>
+  </svg>Фото
+</button> -->
+
+</div>
+</form>
+<aside class="sidebar visible">
+  <form class="auth">
+<h4 class="auth-title">Авторизация</h4>
+  <label class="label auth-label"><input type="text"  class="auth-input" id="login" name="username" required minlength="3" maxlength="40" placeholder="Логин"></label>
+  <label class="label auth-label">
+    <input type="text" class="auth-input" id='pass' name="password" required minlength="3" maxlength="40" placeholder="Пароль">
+  </label>
+<a href="" class="auth-forget">Забыли пароль?</a>
+<button type="submit" class="button auth-button">Войти</button>
+<a href="" class="sign-up">Регистрация</a>
+
+  </form>
+  <div class="user unlogin">
+    <a href="#" class="user-info">
+      
+      <img width="40" height="40" src="img/avatar.jpg" alt="photo-user" class="user-avatar"><span class="user-name"></span>
+      <!-- /.user-info -->
+
+    </a>
+
+  <a href="#" class="user-edit">
+  <svg width='20' height = '20' class="icon icon-pencil">
+    <use xlink:href="img/icons.svg#pencil"></use>
+  </svg>
+  </a>
+
+    <a href="#" class="exit">
+      <svg width='20' height = '20'  class="icon icon-exit">
+        <use xlink:href="img/icons.svg#exit"></use>
+        </svg>
+      
+    </a>
+    <!-- /.exit -->
+  </div>
+
+<form class="sidebar-edit visible">
+  <h4 class="edit-title">Редактирование</h4>
+<label class="edit-label label">
+  Редактировать никнейм
+  <input type="text"  class="edit-name auth-input" id="name" name="name" required minlength="3" maxlength="40" placeholder="">
+</label>
+  <label class="edit-label label">
+    Редактировать фото
+    <input type="text" class="edit-photo auth-input" id='photo' name="photo" minlength="3" placeholder="URL">
+  </label>
+  
+ 
+  <button type="submit" class="button еdit-button">Применить</button>
+
+</form>
+
+  <!-- /.user -->
+  <nav class="sidebar-nav">
+    <!-- <div class="sidebar-nav-wrap">
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link">Ответы</a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link">Комментарии</a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link  active">Оценки</a>
+      </li>
+      <li class="sidebar-menu-item ">
+        <a href="#" class="sidebar-menu-link">Сохраненное</a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link">Подписки</a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link">Заметки</a>
+      </li>
+      <li class="sidebar-menu-item">
+        <a href="#" class="sidebar-menu-link">Игнор-лист</a>
+      </li>
+    </div> -->
+    <a href="#" class="button button-new-post">
+      <svg width='20' height = '20' class="icon icon-flame">
+        <use xlink:href="img/icons.svg#flame"></use>
+      </svg><span class="button-new-text">Опубликовать пост</span> 
+    </a>
+  </nav>
+
+<div class="card">
+<div class="card-header">
+  <h2 class="card-title">
+    Комментарий дня
+  </h2>
+</div>
+<div class="card-body">
+<a href="#" class="card-body-title">Покемон-туры в любую страну мира</a>
+<p class="card-text">
+  Туристическая компания «Мерлинтур» планирует с 1 января 2021 года организовывать уникальные туры по мотивам Pokemon Go – самой популярной мобильной игры июля. Клиентам компании будут доступны покемон-туры из Минска в любую страну мира...
+</p>
+</div>
+
+</div>
+
+<!-- /.card -->
+<a href="https://www.sony.ru/" class="promo"></a>
+</aside>
+
+    </div>
+
+
+</body>
+</html>
