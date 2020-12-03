@@ -273,10 +273,6 @@ cursor: pointer;
 fill:#6c9ec5;
 }
 
-.icon-like:hover, .icon-comment:hover{
-  fill:#6c9ec5;
-  }
-
 .post-button{
   /* cursor:pointer; */
 background-color: transparent;
@@ -323,6 +319,7 @@ color: #BFBFBF;
   font-size: 14px;
   margin-top: 20px;
   background-color: #FAFAFA;
+  margin-bottom: 64px;
 }
 
 .comment-header{
@@ -399,6 +396,8 @@ margin-right: 20px;
 }
 .add-comment{
   width: 100%;
+  margin-top: -64px;
+  margin-bottom: 64px;
  display: none;
   }
 
@@ -739,12 +738,9 @@ width: 100%;
 
 
 @media(max-width:990px){
-
-
-
-  .post:last-child{
+  /* .post:last-child{
     margin-bottom: 64px;
-  }
+  } */
   .posts-wrapper{
     width: 100%;
     max-width: 100%;;
