@@ -23,7 +23,12 @@ p, .tag{
   font-family: 'Lato', sans-serif;;
 }
 
-
+.search-input::-ms-clear {
+  display: none;
+}
+.mark{
+  background-color: #ffe100;
+}
 .container{
   max-width: 1200px;
   margin: 0 auto;

@@ -35,6 +35,7 @@ const commentBlock = document.querySelector(".comment-block");
 const addComment = document.querySelector(".add-comment");
 const inputGroup = document.querySelector(".input-group");
 const commentHeader = document.querySelector(".comment-header");
+const searchInput = document.querySelector('.search-input')
 
 const registration = {
 	user: null,
@@ -435,7 +436,7 @@ const commentFilter = ({event,showAllPosts,showComments})=>{
 		let isAuthor;
 
 		if (!filter.classList.contains("chosen")) {
-			[].forEach.call(commentHeader.children, (child) => child.classList.toggle("chosen"));
+			Array.prototype.forEach.call(commentHeader.children, (child) => child.classList.toggle("chosen"));
 		}
 		isAuthor = commentHeader.children[1].classList.contains("chosen");
 		setPosts.setComments({
@@ -449,12 +450,12 @@ const commentFilter = ({event,showAllPosts,showComments})=>{
 };
 
 const init = () => {
-	toggle.addEventListener("click", (event) => {
+	toggle.addEventListener("click", event => {
 		event.preventDefault();
 		sideBar.classList.toggle("visible"); //burger-menu
 	});
 
-	form.addEventListener("submit", (event) => {
+	form.addEventListener("submit", event => {
 		event.preventDefault();
 		registration.logIn({
 			email:    form.username.value, 
@@ -464,7 +465,7 @@ const init = () => {
 		form.reset();
 	});
 
-	signUp.addEventListener("click", (event) => {
+	signUp.addEventListener("click", event => {
 		event.preventDefault();
 		registration.signIn({
 			email:		form.username.value,
@@ -481,7 +482,7 @@ const init = () => {
 		editForm.classList.toggle("visible");
 	});
 
-	editForm.addEventListener("submit", (event) => {
+	editForm.addEventListener("submit", event => {
 		event.preventDefault();
 		registration.editUser({
 			userName: editForm.name.value,
@@ -503,7 +504,7 @@ const init = () => {
 
 	});
 
-	addPost.addEventListener("submit", (event) => {
+	addPost.addEventListener("submit", event => {
 		event.preventDefault();
 		if(!setPosts.makePost(addPost,toggleModal)){
 		postWrapper.classList.toggle("visible");
@@ -512,25 +513,47 @@ const init = () => {
 	};
 	});
 
-	postWrapper.addEventListener("click", (event) => {
+	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
 		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter});
 	});
 
 
-	addComment.addEventListener("submit", (event) => {
+	addComment.addEventListener("submit", event => {
 		event.preventDefault();
 		setPosts.addCommentToPosts(showAllPosts, showComments);
 		addComment.reset();
 	});
 
-	header.addEventListener("click", (event) => {
+	header.addEventListener("click", event => {
 		event.preventDefault();
 		returnToMain(showAllPosts);
 		
 	});
-
+//to do----
+searchInput.addEventListener('keyup', () =>{
+if(searchInput.value.trim()){
+const inputValue = searchInput.value.toLowerCase().trim();
+const neededPost = setPosts.allPosts
+.filter(post=>{
+if(post.title.toLowerCase().search(inputValue)!=-1||post.text.toLowerCase().search(inputValue)!=-1)return post;
+})
+.map((post)=>{
+let {id,mail,text,title,date,author,avatar,tags} = post;
+const titleIndex = post.title.toLowerCase().search(inputValue);
+const textIndex = post.text.toLowerCase().search(inputValue);
+title = titleIndex!=-1 ? post.title.slice(0,titleIndex) + '<span class="mark">' + post.title.slice(titleIndex,titleIndex+inputValue.length) + '</span>' + post.title.slice(titleIndex+inputValue.length) : post.title;
+text = textIndex!=-1 ? post.text.slice(0,textIndex) + '<span class="mark">' + post.text.slice(textIndex,textIndex+inputValue.length) + '</span>' + post.text.slice(textIndex+inputValue.length) : post.text;
+return {id,mail,title,text,date,author,avatar,tags};
+})
+||setPosts.allPosts;
+console.log(neededPost);
+showAllPosts(neededPost);
+}
+else showAllPosts(setPosts.allPosts);
+})
+//-----to do
 
 	commentHeader.addEventListener("click", (event) => commentFilter({event,showAllPosts,showComments}));
 
