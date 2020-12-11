@@ -23,8 +23,11 @@ p, .tag{
   font-family: 'Lato', sans-serif;;
 }
 
-.search-input::-ms-clear {
-  display: none;
+input::-webkit-search-decoration,
+input::-webkit-search-cancel-button,
+input::-webkit-search-results-button,
+input::-webkit-search-results-decoration { 
+  display: none; 
 }
 .mark{
   background-color: #ffe100;
