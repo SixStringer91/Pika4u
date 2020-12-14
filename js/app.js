@@ -12,6 +12,7 @@ const firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 // console.log(firebase);
+
 const modal = document.querySelector(".modal-wrapper");
 const modalInner = document.querySelector(".modal-text");
 const modalConfirm = document.querySelector(".modal-confirm");
@@ -35,13 +36,14 @@ const commentBlock = document.querySelector(".comment-block");
 const addComment = document.querySelector(".add-comment");
 const inputGroup = document.querySelector(".input-group");
 const commentHeader = document.querySelector(".comment-header");
-const searchInput = document.querySelector('.search-input')
+const searchInput = document.querySelector('.search-input');
+const headerMenu = document.querySelector('.header-menu');
 
 const registration = {
 	user: null,
 	initUser(handler, showPosts) {
 		firebase.auth().onAuthStateChanged((user) => {
-			// console.log(user);
+			 console.log(user);
 			if (user) {
 				this.user = user;
 				if (!user.displayName) {
@@ -96,6 +98,12 @@ const registration = {
 			.createUserWithEmailAndPassword(email, password)
 			.then((data) => {
 				console.log(data);
+				//todo----
+				firebase.database().ref("users/").push ({
+						 email: data.user.email,
+						 subs: '',
+						 savedPosts:''
+				});//todo----
 			})
 			.catch((error) => {
 				let modalMessage;
@@ -112,7 +120,8 @@ const registration = {
 					modalMessage = errorMessage;
 				}
 				callback(modalMessage);
-			});
+			})
+
 	},
 
 	userCheck(mail) {
@@ -152,6 +161,7 @@ const registration = {
 
 const setPosts = {
 	commentsMode: 0,
+	userSubs: null,
 	allPosts: [],
 	
 	makePost(form, modalHandler) {
@@ -185,7 +195,9 @@ const setPosts = {
 	sendPosts() {
 		firebase.database().ref("post").set(this.allPosts);
 	},
-
+	// sendUsers(){
+	// 	firebase.database().ref("users").set(this.userSubs);
+	// },
  addCommentToPosts(showAllPosts, showComments){
 		const user = registration.user;
 		const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
@@ -226,7 +238,7 @@ const setPosts = {
 			});
 	},
 
-	iconHandler({target,showAllPosts,showComments,commentFilter}){
+	iconHandler({target,showAllPosts,showComments,commentFilter,postSaver}){
 		if (target.classList.contains("icon")) {
 			const postId = target.closest(".post").attributes.numb.nodeValue;
 			if (target.classList.contains("icon-like") && registration.user) {
@@ -239,6 +251,9 @@ const setPosts = {
 					showAllPosts,
 					showComments
 				});
+			}
+			else if (target.classList.contains("icon-save")){
+				postSaver(postId)
 			}
 		} else if (target.classList.contains("tag")) {
 			this.tagFilter(target.text, showAllPosts);
@@ -374,10 +389,10 @@ const showAllPosts = (posts) => {
   </svg>
   <span class="comments-counter">${postComments}</span>
   </button>
-  <!--<button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
+  <button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
     <use xlink:href="img/icons.svg#save"></use>
   </svg></button>
-  <button  class="post-button share">
+  <!--<button  class="post-button share">
     <svg width='17' height = '19'  class="icon icon-share">
       <use xlink:href="img/icons.svg#share"></use>
     </svg>
@@ -449,6 +464,10 @@ const commentFilter = ({event,showAllPosts,showComments})=>{
 }
 };
 
+const postSaver = (postId)=>{
+console.log(postId);
+}
+
 const init = () => {
 	toggle.addEventListener("click", event => {
 		event.preventDefault();
@@ -516,7 +535,7 @@ const init = () => {
 	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
-		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter});
+		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postSaver});
 	});
 
 
@@ -528,6 +547,10 @@ const init = () => {
 
 	header.addEventListener("click", event => {
 		event.preventDefault();
+		const headerItems = document.querySelectorAll('.header-menu-link');
+		console.dir(headerItems);
+		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
+		headerItems[0].classList.add('chosen')
 		returnToMain(showAllPosts);
 		
 	});
@@ -548,13 +571,35 @@ text = textIndex!=-1 ? post.text.slice(0,textIndex) + '<span class="mark">' + po
 return {id,mail,title,text,date,author,avatar,tags};
 })
 ||setPosts.allPosts;
-console.log(neededPost);
 showAllPosts(neededPost);
 }
 else showAllPosts(setPosts.allPosts);
-})
-//-----to do
+});
 
+headerMenu.addEventListener('click',event=>{
+
+	if(event.target.classList.contains('header-menu-link')){
+		const array = [...setPosts.allPosts].map((obj=>obj));
+		const headerItems = document.querySelectorAll('.header-menu-link');
+		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
+		event.target.classList.add('chosen');
+	if(event.target.innerHTML === 'Лучшее'){
+	array.sort((a,b)=>{
+	return a.likes&&b.likes ? b.likes.length - a.likes.length : -1;
+})
+}
+	else if (event.target.innerHTML === 'Горячее'){
+	array.sort((a,b)=>{
+	return a.likes&&b.comments ? b.likes.comments - a.likes.comments  : -1;
+})}
+///double code
+setPosts.commentsMode = 0;
+addComment.style.display = "";
+commentBlock.style.display = "";
+///double code
+showAllPosts(array);
+}})
+//-----todo
 	commentHeader.addEventListener("click", (event) => commentFilter({event,showAllPosts,showComments}));
 
 
