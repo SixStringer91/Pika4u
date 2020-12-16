@@ -205,7 +205,7 @@ const setPosts = {
 	// sendUsers(){
 	// 	firebase.database().ref("users").set(this.userSubs);
 	// },
- addCommentToPosts(showAllPosts, showComments){
+	addCommentToPosts(showAllPosts, showComments){
 		const user = registration.user;
 		const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 		const postIndex = setPosts.allPosts.findIndex((obj) => obj.id === postId);
@@ -320,6 +320,7 @@ const setPosts = {
 		if(showAllPosts){
 			postStarter ([findPost],showAllPosts,animation);}
 		if(showComments)showComments(comments);
+
 	}
 };
 
@@ -557,14 +558,20 @@ const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		event.target.classList.add('chosen');
 	if(event.target.innerHTML === 'Лучшее'){
-	array.sort((a,b)=>{
-	return a.likes&&b.likes ? b.likes.length - a.likes.length : -1;
-})
+		array.sort((a,b) => {
+			const aLike = a.likes ? a.likes.length : 0;
+			const bLike = b.likes ? b.likes.length : 0;
+			return bLike - aLike;
+		});
 }
-	else if (event.target.innerHTML === 'Горячее'){
-	array.sort((a,b)=>{
-	return a.likes&&b.comments ? b.likes.comments - a.likes.comments  : -1;
-})}
+	 if (event.target.innerHTML === 'Горячее'){
+		array.sort((a,b) => {
+			const aCom = a.comments ? a.comments.length : 0;
+			const bCom = b.comments ? b.comments.length : 0;
+			return bCom - aCom;
+		});
+	
+}
 ///double code
 setPosts.commentsMode = 0;
 addComment.style.display = "";
