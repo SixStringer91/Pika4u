@@ -1,4 +1,9 @@
 'use strict'
+
+
+console.log(document.documentElement.clientHeight);
+
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
@@ -38,12 +43,14 @@ const inputGroup = document.querySelector(".input-group");
 const commentHeader = document.querySelector(".comment-header");
 const searchInput = document.querySelector('.search-input');
 const headerMenu = document.querySelector('.header-menu');
+let postViewer;
+
 
 const registration = {
 	user: null,
 	initUser(handler, showPosts) {
 		firebase.auth().onAuthStateChanged((user) => {
-			 console.log(user);
+			  console.log(user);
 			if (user) {
 				this.user = user;
 				if (!user.displayName) {
@@ -98,12 +105,12 @@ const registration = {
 			.createUserWithEmailAndPassword(email, password)
 			.then((data) => {
 				console.log(data);
-				//todo----
+				//TODO
 				firebase.database().ref("users/").push ({
-						 email: data.user.email,
-						 subs: '',
-						 savedPosts:''
-				});//todo----
+						  email: data.user.email,
+						  subs: '',
+						  savedPosts:''
+				});//TODO
 			})
 			.catch((error) => {
 				let modalMessage;
@@ -221,7 +228,8 @@ const setPosts = {
 		});
 	},
 
-	getPosts(showAllPosts,showComments) {
+	getPosts(postStarter, showAllPosts,showComments, animation) {
+	
 		firebase
 			.database()
 			.ref("post")
@@ -231,14 +239,18 @@ const setPosts = {
 					const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 					this.setComments({
 						postId,
+						postStarter,
 						showAllPosts,
 						showComments
 					});
-				} else if (!setPosts.commentsMode&&showAllPosts) showAllPosts(this.allPosts);
+				} else if (!setPosts.commentsMode&&showAllPosts) {
+					postStarter(this.allPosts, showAllPosts, animation)
+				}
+	
 			});
 	},
 
-	iconHandler({target,showAllPosts,showComments,commentFilter,postSaver}){
+	iconHandler({target,postStarter,showAllPosts,showComments,commentFilter,postSaver,animation}){
 		if (target.classList.contains("icon")) {
 			const postId = target.closest(".post").attributes.numb.nodeValue;
 			if (target.classList.contains("icon-like") && registration.user) {
@@ -248,8 +260,10 @@ const setPosts = {
 				this.commentsMode = !setPosts.commentsMode? 1 : this.commentsMode;
 				this.setComments({
 					postId,
+					postStarter,
 					showAllPosts,
-					showComments
+					showComments,
+					animation
 				});
 			}
 			else if (target.classList.contains("icon-save")){
@@ -297,16 +311,48 @@ const setPosts = {
 		if(showPosts)showPosts(findPosts);
 	},
 
-	setComments({postId,authorPost=false,showAllPosts,showComments}) {
+	setComments({postId,authorPost=false,	postStarter,showAllPosts,showComments}) {
 		const findPost = this.allPosts.find((obj) => obj.id === postId);
 		findPost.comments = findPost.comments || [];
 		const comments = authorPost ? findPost.comments.filter((comments) => findPost.mail === comments.email) : findPost.comments;
 		addComment.style.display = registration.user ? "block" : "";
 		commentBlock.style.display = "block";
-		if(showAllPosts)showAllPosts([findPost]);
+		if(showAllPosts){
+			postStarter ([findPost],showAllPosts,animation);}
 		if(showComments)showComments(comments);
 	}
 };
+
+const animation = ()=>{
+	let cancel;
+	const child = Array.prototype.map.call(postWrapper.children,obj=>obj);
+	const fadeIn = ()=>{
+	const breaker = child.find(post=>parseInt(getComputedStyle(post).opacity,10)<1);
+	if(breaker){
+	child.forEach(post =>{
+		const currentOpacity = parseFloat(getComputedStyle(post).opacity);
+		if(currentOpacity<=1) post.style.opacity = currentOpacity+0.02;
+		});
+	cancel = requestAnimationFrame(()=>fadeIn());
+	}
+	else cancelAnimationFrame(cancel)
+	};
+	fadeIn();
+}
+
+const scroller = (callback)=>{
+	const scrollHeight = Math.max(
+		document.body.scrollHeight, document.documentElement.scrollHeight,
+		document.body.offsetHeight, document.documentElement.offsetHeight,
+		document.body.clientHeight, document.documentElement.clientHeight
+	);
+
+	if(scrollY+5>=scrollHeight-document.documentElement.clientHeight){
+
+		postViewer();
+		callback();
+	}
+}
 
 const toggleModal = (message) => {
 	if (message) {
@@ -340,7 +386,7 @@ const toggleAuth = () => {
 	}
 };
 
-const returnToMain = (callback) => {
+const returnToMain = (postArr,postStarter,callback,animation) => {
 	if (setPosts.commentsMode) {
 		setPosts.commentsMode = 0;
 	}
@@ -350,18 +396,30 @@ const returnToMain = (callback) => {
 		postWrapper.classList.toggle("visible");
 		addPost.classList.add("visible");
 	}
-callback(setPosts.allPosts);
+postStarter(postArr,callback,animation);
 };
 
+const postStarter = (postArr, callback, animation)=>{
+	postWrapper.innerHTML = ``;
+	postViewer = callback(postArr);
+	while(postWrapper.clientHeight<window.innerHeight){
+	const checker = postViewer();
+	if(checker) break;
+	}
+	if(animation)animation();
+}
+
 const showAllPosts = (posts) => {
-	postWrapper.innerHTML = "";
-	posts.forEach((obj) => {
-		const {id,title,text,tags,author,avatar,date,likes,comments} = obj;
+	let count = 0;
+	return ()=>{
+if(count>=posts.length)return 1
+if(count<posts.length){
+		const {id,title,text,tags,author,avatar,date,likes,comments} = posts[count];
 		const tagObj = tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ");
 		const postLikes = !likes ? 0 : likes.length;
 		const postComments = !comments ? 0 : comments.length;
 		const findUserLike =
-			registration.user && postLikes ? obj.likes.find((obj) => obj === registration.user.uid) : null;
+			registration.user && postLikes ? posts[count].likes.find((obj) => obj === registration.user.uid) : null;
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
 		postWrapper.innerHTML += `
@@ -389,10 +447,10 @@ const showAllPosts = (posts) => {
   </svg>
   <span class="comments-counter">${postComments}</span>
   </button>
-  <button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
+  <!--<button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
     <use xlink:href="img/icons.svg#save"></use>
   </svg></button>
-  <!--<button  class="post-button share">
+  <button  class="post-button share">
     <svg width='17' height = '19'  class="icon icon-share">
       <use xlink:href="img/icons.svg#share"></use>
     </svg>
@@ -406,8 +464,11 @@ const showAllPosts = (posts) => {
   <a href="#" class="author-link"><img src=${avatar} alt="" class="author-avatar"></a>
   </div> 
   </div>
-  </section>`;
-	});
+	</section>`;
+	
+	count>posts.length ? count = count : count++;
+};
+}
 };
 
 const showComments = (comments) => {
@@ -451,12 +512,13 @@ const commentFilter = ({event,showAllPosts,showComments})=>{
 		let isAuthor;
 
 		if (!filter.classList.contains("chosen")) {
-			Array.prototype.forEach.call(commentHeader.children, (child) => child.classList.toggle("chosen"));
+			Array.prototype.forEach.call(commentHeader.children, child => child.classList.toggle("chosen"));
 		}
 		isAuthor = commentHeader.children[1].classList.contains("chosen");
 		setPosts.setComments({
 			postId,
 			authorPost:isAuthor,
+			postStarter,
 			showAllPosts,
 			showComments
 		});
@@ -464,10 +526,53 @@ const commentFilter = ({event,showAllPosts,showComments})=>{
 }
 };
 
-const postSaver = (postId)=>{
-console.log(postId);
+const liveSearch=({postStarter,showAllPosts})=>{
+	if(searchInput.value.trim()){
+		const inputValue = searchInput.value.toLowerCase().trim();
+		const neededPost = setPosts.allPosts
+		.filter(post=>{
+		if(post.title.toLowerCase().search(inputValue)!=-1||post.text.toLowerCase().search(inputValue)!=-1)return post;
+		})
+		.map((post)=>{
+		let {id,mail,text,title,date,author,avatar,tags} = post;
+		const titleIndex = post.title.toLowerCase().search(inputValue);
+		const textIndex = post.text.toLowerCase().search(inputValue);
+		title = titleIndex!=-1 ? post.title.slice(0,titleIndex) + '<span class="mark">' + post.title.slice(titleIndex,titleIndex+inputValue.length) + '</span>' + post.title.slice(titleIndex+inputValue.length) : post.title;
+		text = textIndex!=-1 ? post.text.slice(0,textIndex) + '<span class="mark">' + post.text.slice(textIndex,textIndex+inputValue.length) + '</span>' + post.text.slice(textIndex+inputValue.length) : post.text;
+		return {id,mail,title,text,date,author,avatar,tags};
+		})
+		||setPosts.allPosts;
+		postStarter(neededPost,showAllPosts)
+		}
+		else {
+		postStarter(setPosts.allPosts,showAllPosts)
+		}
+	Array.prototype.forEach.call(postWrapper.children,post=>post.style.opacity = 1)
 }
 
+const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
+	if(event.target.classList.contains('header-menu-link')){
+		const array = [...setPosts.allPosts].map((obj=>obj));
+		const headerItems = document.querySelectorAll('.header-menu-link');
+		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
+		event.target.classList.add('chosen');
+	if(event.target.innerHTML === 'Лучшее'){
+	array.sort((a,b)=>{
+	return a.likes&&b.likes ? b.likes.length - a.likes.length : -1;
+})
+}
+	else if (event.target.innerHTML === 'Горячее'){
+	array.sort((a,b)=>{
+	return a.likes&&b.comments ? b.likes.comments - a.likes.comments  : -1;
+})}
+///double code
+setPosts.commentsMode = 0;
+addComment.style.display = "";
+commentBlock.style.display = "";
+///double code
+postStarter(array,showAllPosts,animation)
+}
+}
 const init = () => {
 	toggle.addEventListener("click", event => {
 		event.preventDefault();
@@ -493,13 +598,9 @@ const init = () => {
 		});
 	});
 
-	userLogout.addEventListener("click", () => {
-		registration.logOut(toggleAuth);
-	});
+	userLogout.addEventListener("click", () => registration.logOut(toggleAuth));
 
-	editButton.addEventListener("click", () => {
-		editForm.classList.toggle("visible");
-	});
+	editButton.addEventListener("click", () => editForm.classList.toggle("visible"));
 
 	editForm.addEventListener("submit", event => {
 		event.preventDefault();
@@ -519,8 +620,6 @@ const init = () => {
 			addComment.style.display = isComments ? "" : 'block';
 			commentBlock.style.display = isComments ? "" : 'block';
 		}
-
-
 	});
 
 	addPost.addEventListener("submit", event => {
@@ -535,9 +634,8 @@ const init = () => {
 	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
-		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postSaver});
+		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter});
 	});
-
 
 	addComment.addEventListener("submit", event => {
 		event.preventDefault();
@@ -551,63 +649,22 @@ const init = () => {
 		console.dir(headerItems);
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		headerItems[0].classList.add('chosen')
-		returnToMain(showAllPosts);
+		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 		
 	});
-//to do----
-searchInput.addEventListener('keyup', () =>{
-if(searchInput.value.trim()){
-const inputValue = searchInput.value.toLowerCase().trim();
-const neededPost = setPosts.allPosts
-.filter(post=>{
-if(post.title.toLowerCase().search(inputValue)!=-1||post.text.toLowerCase().search(inputValue)!=-1)return post;
-})
-.map((post)=>{
-let {id,mail,text,title,date,author,avatar,tags} = post;
-const titleIndex = post.title.toLowerCase().search(inputValue);
-const textIndex = post.text.toLowerCase().search(inputValue);
-title = titleIndex!=-1 ? post.title.slice(0,titleIndex) + '<span class="mark">' + post.title.slice(titleIndex,titleIndex+inputValue.length) + '</span>' + post.title.slice(titleIndex+inputValue.length) : post.title;
-text = textIndex!=-1 ? post.text.slice(0,textIndex) + '<span class="mark">' + post.text.slice(textIndex,textIndex+inputValue.length) + '</span>' + post.text.slice(textIndex+inputValue.length) : post.text;
-return {id,mail,title,text,date,author,avatar,tags};
-})
-||setPosts.allPosts;
-showAllPosts(neededPost);
-}
-else showAllPosts(setPosts.allPosts);
-});
 
-headerMenu.addEventListener('click',event=>{
+	searchInput.addEventListener('keyup', () =>liveSearch({postStarter,showAllPosts}));
 
-	if(event.target.classList.contains('header-menu-link')){
-		const array = [...setPosts.allPosts].map((obj=>obj));
-		const headerItems = document.querySelectorAll('.header-menu-link');
-		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
-		event.target.classList.add('chosen');
-	if(event.target.innerHTML === 'Лучшее'){
-	array.sort((a,b)=>{
-	return a.likes&&b.likes ? b.likes.length - a.likes.length : -1;
-})
-}
-	else if (event.target.innerHTML === 'Горячее'){
-	array.sort((a,b)=>{
-	return a.likes&&b.comments ? b.likes.comments - a.likes.comments  : -1;
-})}
-///double code
-setPosts.commentsMode = 0;
-addComment.style.display = "";
-commentBlock.style.display = "";
-///double code
-showAllPosts(array);
-}})
-//-----todo
-	commentHeader.addEventListener("click", (event) => commentFilter({event,showAllPosts,showComments}));
+	headerMenu.addEventListener('click',event=>headerMenuHandler({event,postStarter,showAllPosts,animation}))
+
+	commentHeader.addEventListener("click", (event) => commentFilter({event,postStarter,showAllPosts,showComments}));
 
 
 	modalConfirm.addEventListener("click", () => toggleModal());
 
+	registration.initUser(toggleAuth, () => setPosts.getPosts(postStarter, showAllPosts, showComments,animation));
 
-
-	registration.initUser(toggleAuth, () => setPosts.getPosts(showAllPosts));
+	window.addEventListener('scroll',()=> scroller(animation));
 };
 
 document.addEventListener("DOMContentLoaded", init);
