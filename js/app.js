@@ -1,9 +1,5 @@
 'use strict'
 
-
-console.log(document.documentElement.clientHeight);
-
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
@@ -205,7 +201,7 @@ const setPosts = {
 	// sendUsers(){
 	// 	firebase.database().ref("users").set(this.userSubs);
 	// },
-	addCommentToPosts(showAllPosts, showComments){
+	addCommentToPosts({showAllPosts,showComments,postStarter}){
 		const user = registration.user;
 		const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 		const postIndex = setPosts.allPosts.findIndex((obj) => obj.id === postId);
@@ -224,7 +220,8 @@ const setPosts = {
 		this.setComments({
 			postId,
 			showAllPosts,
-			showComments
+			showComments,
+			postStarter
 		});
 	},
 
@@ -244,7 +241,7 @@ const setPosts = {
 						showComments
 					});
 				} else if (!setPosts.commentsMode&&showAllPosts) {
-					postStarter(this.allPosts, showAllPosts, animation)
+					postStarter(this.allPosts, showAllPosts, animation);
 				}
 	
 			});
@@ -270,7 +267,7 @@ const setPosts = {
 				postSaver(postId)
 			}
 		} else if (target.classList.contains("tag")) {
-			this.tagFilter(target.text, showAllPosts);
+			this.tagFilter(target.text,postStarter,showAllPosts,animation);
 		}
 	},
 
@@ -293,7 +290,8 @@ const setPosts = {
 		this.sendPosts();
 	},
 
-	tagFilter(tag, showPosts) {
+	tagFilter(tag,postStarter,showAllPosts,animation) {
+	
 		if (this.commentsMode) {
 			addComment.style.display = "";
 			commentBlock.style.display = "";
@@ -308,7 +306,7 @@ const setPosts = {
 			});
 			if (postEqual) return post;
 		});
-		if(showPosts)showPosts(findPosts);
+		postStarter(findPosts,showAllPosts,animation);
 	},
 
 	setComments({postId,authorPost=false,	postStarter,showAllPosts,showComments}) {
@@ -320,7 +318,6 @@ const setPosts = {
 		if(showAllPosts){
 			postStarter ([findPost],showAllPosts,animation);}
 		if(showComments)showComments(comments);
-
 	}
 };
 
@@ -641,12 +638,12 @@ const init = () => {
 	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
-		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter});
+		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter,animation});
 	});
 
 	addComment.addEventListener("submit", event => {
 		event.preventDefault();
-		setPosts.addCommentToPosts(showAllPosts, showComments);
+		setPosts.addCommentToPosts({showAllPosts, showComments,postStarter});
 		addComment.reset();
 	});
 
