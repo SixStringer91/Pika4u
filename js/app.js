@@ -164,6 +164,7 @@ const registration = {
 
 const setPosts = {
 	commentsMode: 0,
+	likedPost: 0,
 	userSubs: null,
 	allPosts: [],
 	
@@ -240,8 +241,20 @@ const setPosts = {
 						showAllPosts,
 						showComments
 					});
-				} else if (!setPosts.commentsMode&&showAllPosts) {
+				} else if (!setPosts.commentsMode&&showAllPosts&&!this.likedPost) {
 					postStarter(this.allPosts, showAllPosts, animation);
+				}
+				else if (this.likedPost){
+					const likes = this.allPosts.find(obj=>obj.id===this.likedPost).likes.length || 0;
+					// if(likes)
+					// const likedByUser = likes.find(obj=>registration.user.uid===obj);
+					Array.prototype.forEach.call(postWrapper.children,(post)=>{
+						if(post.attributes.numb.nodeValue===this.likedPost){
+							post.querySelector('.icon-like').classList.toggle('chosen');
+							post.querySelector('.likes-counter').innerHTML = `${likes}`;
+						}
+					});
+					this.likedPost=0;
 				}
 	
 			});
@@ -272,6 +285,7 @@ const setPosts = {
 	},
 
 	editLikes(postId) {
+		this.likedPost = postId;
 		const findPost = this.allPosts.findIndex((obj) => obj.id === postId);
 		if (!this.allPosts[findPost].likes) {
 			this.allPosts[findPost].likes = new Array(0);
