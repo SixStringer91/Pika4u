@@ -222,6 +222,10 @@ fill:#6c9ec5;
   margin-bottom: 30px;
   opacity: 0;
 }
+.post-text img{
+  display: block;
+  width: 100%;
+}
 
 .post-body{
   padding-left: 35px;

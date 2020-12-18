@@ -1,5 +1,4 @@
 'use strict'
-
 // Your web app's Firebase configuration
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
@@ -179,9 +178,9 @@ const setPosts = {
 		} else {
 			this.allPosts.unshift({
 				id: 		`postID${(+new Date()).toString(16)}-${user.uid}`,
-				title: 	title.value,
-				text:		text.value,
-				tags: 	tags.value.split(" ").join("").split(","),
+				title: 	title.value.replace(/<\/?[^>]+(>|$)/g, ""),
+				text:		text.value.replace(/<\/?[^>]+(>|$)/g, ""),
+				tags: 	tags.value.split(" ").join("").split(",").replace(/<\/?[^>]+(>|$)/g, ""),
 				mail: 	user.email,
 				author: user.displayName,
 				avatar: user.photoURL,
@@ -212,7 +211,7 @@ const setPosts = {
 		setPosts.allPosts[postIndex].comments.push({
 			id: 		`commentID${(+new Date()).toString(16)}-${user.uid}`,
 			email: 	user.email,
-			text: 	addComment.text.value,
+			text: 	addComment.text.value.replace(/<\/?[^>]+(>|$)/, ""),
 			date:		new Date().toLocaleString(),
 			author: user.displayName,
 			avatar: user.photoURL,
@@ -310,7 +309,6 @@ const setPosts = {
 			addComment.style.display = "";
 			commentBlock.style.display = "";
 		}
-
 		const findPosts = this.allPosts.filter((post) => {
 			let postEqual;
 			post.tags.forEach((obj) => {
@@ -358,9 +356,7 @@ const scroller = (callback)=>{
 		document.body.offsetHeight, document.documentElement.offsetHeight,
 		document.body.clientHeight, document.documentElement.clientHeight
 	);
-
-	if(scrollY+5>=scrollHeight-document.documentElement.clientHeight){
-
+	if(scrollY+20>=scrollHeight-document.documentElement.clientHeight){
 		postViewer();
 		callback();
 	}
@@ -440,7 +436,7 @@ if(count<posts.length){
     <h2 class="post-title">
       ${title}
     </h2>
-      <p class="post-text">
+			<p class="post-text">
       ${text}
       </p>
       <div class="tags">
