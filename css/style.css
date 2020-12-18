@@ -764,6 +764,7 @@ width: 100%;
   .posts-wrapper{
     width: 100%;
     max-width: 100%;;
+    margin-bottom: 30px;
   }
 .menu-toogle{
   display: flex;

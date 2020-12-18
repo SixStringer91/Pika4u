@@ -356,7 +356,7 @@ const scroller = (callback)=>{
 		document.body.offsetHeight, document.documentElement.offsetHeight,
 		document.body.clientHeight, document.documentElement.clientHeight
 	);
-	if(scrollY+20>=scrollHeight-document.documentElement.clientHeight){
+	if(scrollY+100>=scrollHeight-document.documentElement.clientHeight){
 		postViewer();
 		callback();
 	}
