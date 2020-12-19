@@ -1,4 +1,5 @@
 'use strict'
+
 // Your web app's Firebase configuration
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
@@ -169,7 +170,7 @@ const setPosts = {
 	
 	makePost(form, modalHandler) {
 		const user = firebase.auth().currentUser;
-		const { title, text, tags } = form.elements;
+		const { title, text, tags, pic } = form.elements;
 		let message;
 		if (title.value.length < 3) {
 			message = "Название поста слишком короткое!";
@@ -177,16 +178,25 @@ const setPosts = {
 			message = "Длина поста слишком короткая";
 		} else {
 			this.allPosts.unshift({
-				id: 		`postID${(+new Date()).toString(16)}-${user.uid}`,
-				title: 	title.value.replace(/<\/?[^>]+(>|$)/g, ""),
-				text:		text.value.replace(/<\/?[^>]+(>|$)/g, ""),
-				tags: 	tags.value.split(" ").join("").split(",").replace(/<\/?[^>]+(>|$)/g, ""),
+				id: 		`postID${(+new Date())
+				.toString(16)}-${user.uid}`,
+				title: 	title.value
+				.replace(/<\/?[^>]+(>|$)/g, ""),
+				text:		text.value
+				.replace(/<\/?[^>]+(>|$)/g, ""),
+				pics: pic.value
+				.replace(/<\/?[^>]+(>|$)/g, "") || '',
+				tags: 	tags.value
+				.replace(/<\/?[^>]+(>|$)/g, "")
+				.split(" ")
+				.join("")
+				.split(","),
 				mail: 	user.email,
 				author: user.displayName,
 				avatar: user.photoURL,
 				date: new Date().toLocaleString(),
 				likes: 0,
-				comments: 0,
+				comments: 0
 			});
 	
 		};
@@ -232,7 +242,7 @@ const setPosts = {
 			.ref("post")
 			.on("value", (snapshot) => {
 				this.allPosts = snapshot.val() || [];
-				if (setPosts.commentsMode) {
+				if (setPosts.commentsMode&&!this.likedPost) {
 					const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 					this.setComments({
 						postId,
@@ -422,7 +432,7 @@ const showAllPosts = (posts) => {
 	return ()=>{
 if(count>=posts.length)return 1
 if(count<posts.length){
-		const {id,title,text,tags,author,avatar,date,likes,comments} = posts[count];
+		const {id,title,text,pics,tags,author,avatar,date,likes,comments} = posts[count];
 		const tagObj = tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ");
 		const postLikes = !likes ? 0 : likes.length;
 		const postComments = !comments ? 0 : comments.length;
@@ -430,6 +440,7 @@ if(count<posts.length){
 			registration.user && postLikes ? posts[count].likes.find((obj) => obj === registration.user.uid) : null;
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
+		const pictures = pics ? `<img src=${pics} alt=""></img>` : '';
 		postWrapper.innerHTML += `
   <section class="post" numb = "${id}">
   <div class="post-body">
@@ -438,7 +449,10 @@ if(count<posts.length){
     </h2>
 			<p class="post-text">
       ${text}
-      </p>
+			</p>
+			<div class="post-pics">
+			${pictures}
+			</div>
       <div class="tags">
       ${tagObj}
       </div>  
