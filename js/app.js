@@ -364,6 +364,7 @@ const animation = ()=>{
 }
 
 const scroller = (callback)=>{
+
 	const scrollHeight = Math.max(
 		document.body.scrollHeight, document.documentElement.scrollHeight,
 		document.body.offsetHeight, document.documentElement.offsetHeight,
@@ -373,6 +374,7 @@ const scroller = (callback)=>{
 		postViewer();
 		callback();
 	}
+
 }
 
 const toggleModal = (message) => {
@@ -698,7 +700,12 @@ const init = () => {
 
 	registration.initUser(toggleAuth, () => setPosts.getPosts(postStarter, showAllPosts, showComments,animation));
 
-	window.addEventListener('scroll',()=> scroller(animation));
+	window.addEventListener('scroll',()=> {
+		
+			scroller(animation);
+	
+	}
+	);
 	window.addEventListener('resize',()=>{
 	const allPosts = postWrapper.querySelectorAll('.post');
 	const width = postWrapper.closest('.posts-wrapper').offsetWidth;
@@ -706,7 +713,7 @@ const init = () => {
 [].forEach.call(post.querySelectorAll('.post-img'),(img,index,arr)=>{
 	if(img) {
 		img.style.width = `${width/arr.length - 70/arr.length*2}px`;	
-		img.style.margin = arr.length===1 ? '0 auto':`${Math.floor(10/pics.length)}px`;
+		img.style.margin = arr.length===1 ? '0 auto':`${Math.floor(10/arr.length)}px`;
 }
 
 }
