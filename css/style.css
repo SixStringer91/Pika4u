@@ -233,6 +233,7 @@ flex-wrap: wrap;
 
 .post-pics img {
 margin: 0 auto;
+display: block;
 }
 
 

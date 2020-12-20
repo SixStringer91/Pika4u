@@ -444,7 +444,7 @@ if(count<posts.length){
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
 		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;;
-		const pictures = pics ? pics.map((pic,index,array)=>`<img src=${pic} style="width:${containerWidth/array.length - 70}px" alt=""></img>`).join(" ")
+		const pictures = pics ? pics.map((pic,index,array) => `<img src=${pic} style="width: calc(${100/innerWidth*containerWidth/array.length}vw - 70px)" alt=""></img>`).join(" ")
 		: '';
 	
 		postWrapper.innerHTML += `
