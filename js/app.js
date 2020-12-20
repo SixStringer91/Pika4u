@@ -444,8 +444,7 @@ if(count<posts.length){
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
 		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;
-		console.log(pics);
-		const pictures = pics ? pics.map((pic) => `<img src=${pic} style= alt=""></img>`).join(" ")
+		const pictures = pics ? pics.map((pic) => `<img src=${pic}  class="post-img" style="width:${containerWidth/pics.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`).join(" ")
 		: '';
 	
 		postWrapper.innerHTML += `
@@ -700,6 +699,21 @@ const init = () => {
 	registration.initUser(toggleAuth, () => setPosts.getPosts(postStarter, showAllPosts, showComments,animation));
 
 	window.addEventListener('scroll',()=> scroller(animation));
+	window.addEventListener('resize',()=>{
+	const allPosts = postWrapper.querySelectorAll('.post');
+	const width = postWrapper.closest('.posts-wrapper').offsetWidth;
+	Array.prototype.forEach.call(allPosts, post => 
+[].forEach.call(post.querySelectorAll('.post-img'),(img,index,arr)=>{
+	if(img) {
+		img.style.width = `${width/arr.length - 70/arr.length*2}px`;	
+		img.style.margin = arr.length===1 ? '0 auto':`${Math.floor(10/pics.length)}px`;
+}
+
+}
+))});
+
+
 };
 
 document.addEventListener("DOMContentLoaded", init);
+setPosts.allPosts.shift()

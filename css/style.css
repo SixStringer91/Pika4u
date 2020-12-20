@@ -226,13 +226,11 @@ fill:#6c9ec5;
 .post-pics{
 display: flex;
 width: 100%;
-justify-content: space-between;
+justify-content: space-around;
 align-items: center;
-flex-wrap: wrap;
 }
 
-.post-pics img {
-margin: 0 auto;
+.post-img {
 display: block;
 width: 100%;
 }
