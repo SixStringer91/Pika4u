@@ -184,11 +184,11 @@ const setPosts = {
 				.replace(/<\/?[^>]+(>|$)/g, ""),
 				text:		text.value
 				.replace(/<\/?[^>]+(>|$)/g, ""),
-				pics: pic.value
+				pics: pic.value ? pic.value 
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
 				.join("")
-				.split(","),
+				.split(",") : '',
 				tags: 	tags.value
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
@@ -443,8 +443,9 @@ if(count<posts.length){
 			registration.user && postLikes ? posts[count].likes.find((obj) => obj === registration.user.uid) : null;
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
-		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;;
-		const pictures = pics ? pics.map((pic,index,array) => `<img src=${pic} style="width: calc(${100/innerWidth*containerWidth/array.length}vw - 70px)" alt=""></img>`).join(" ")
+		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;
+		console.log(pics);
+		const pictures = pics ? pics.map((pic) => `<img src=${pic} style= alt=""></img>`).join(" ")
 		: '';
 	
 		postWrapper.innerHTML += `
