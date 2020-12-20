@@ -222,6 +222,20 @@ fill:#6c9ec5;
   margin-bottom: 30px;
   opacity: 0;
 }
+
+.post-pics{
+display: flex;
+width: 100%;
+justify-content: space-between;
+align-items: center;
+flex-wrap: wrap;
+}
+
+.post-pics img {
+margin: 0 auto;
+}
+
+
 .post-text img{
   display: block;
   width: 100%;

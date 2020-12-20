@@ -185,7 +185,10 @@ const setPosts = {
 				text:		text.value
 				.replace(/<\/?[^>]+(>|$)/g, ""),
 				pics: pic.value
-				.replace(/<\/?[^>]+(>|$)/g, "") || '',
+				.replace(/<\/?[^>]+(>|$)/g, "")
+				.split(" ")
+				.join("")
+				.split(","),
 				tags: 	tags.value
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
@@ -440,7 +443,10 @@ if(count<posts.length){
 			registration.user && postLikes ? posts[count].likes.find((obj) => obj === registration.user.uid) : null;
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
-		const pictures = pics ? `<img src=${pics} alt=""></img>` : '';
+		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;;
+		const pictures = pics ? pics.map((pic,index,array)=>`<img src=${pic} style="width:${containerWidth/array.length - 70}px" alt=""></img>`).join(" ")
+		: '';
+	
 		postWrapper.innerHTML += `
   <section class="post" numb = "${id}">
   <div class="post-body">
