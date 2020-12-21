@@ -40,7 +40,7 @@ const commentHeader = document.querySelector(".comment-header");
 const searchInput = document.querySelector('.search-input');
 const headerMenu = document.querySelector('.header-menu');
 let postViewer;
-
+console.log(postWrapper.children);
 
 const registration = {
 	user: null,
@@ -163,6 +163,7 @@ const registration = {
 };
 
 const setPosts = {
+	loaded:0,
 	commentsMode: 0,
 	likedPost: 0,
 	userSubs: null,
@@ -446,9 +447,11 @@ if(count<posts.length){
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
 		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;
-		const pictures = pics ? pics.map((pic) => `<img src=${pic}  class="post-img" style="width:${containerWidth/pics.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`).join(" ")
-		: '';
-	
+		const pictures = pics ? pics.map((pic,index,arr) => {
+			return `<img src=${pic}  class="post-img" style="width:${containerWidth/arr.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`;})
+			.join(" ")
+			: '';
+
 		postWrapper.innerHTML += `
   <section class="post" numb = "${id}">
   <div class="post-body">
@@ -682,7 +685,6 @@ const init = () => {
 	header.addEventListener("click", event => {
 		event.preventDefault();
 		const headerItems = document.querySelectorAll('.header-menu-link');
-		console.dir(headerItems);
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		headerItems[0].classList.add('chosen')
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
@@ -700,12 +702,13 @@ const init = () => {
 
 	registration.initUser(toggleAuth, () => setPosts.getPosts(postStarter, showAllPosts, showComments,animation));
 
+
+
 	window.addEventListener('scroll',()=> {
-		
-			scroller(animation);
-	
+		if(postWrapper.clientHeight)scroller(animation);
 	}
 	);
+
 	window.addEventListener('resize',()=>{
 	const allPosts = postWrapper.querySelectorAll('.post');
 	const width = postWrapper.closest('.posts-wrapper').offsetWidth;
@@ -723,4 +726,6 @@ const init = () => {
 };
 
 document.addEventListener("DOMContentLoaded", init);
-setPosts.allPosts.shift()
+setPosts.allPosts.shift();
+
+window.onload = () => setPosts.loaded = 1;
