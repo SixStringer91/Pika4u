@@ -189,7 +189,7 @@ const setPosts = {
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
 				.join("")
-				.split(",") : '',
+				.split(",") : null,
 				tags: 	tags.value
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
@@ -447,8 +447,7 @@ if(count<posts.length){
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
 		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;
-		const pictures = pics ? pics.map((pic,index,arr) => {
-			return `<img src=${pic}  class="post-img" style="width:${containerWidth/arr.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`;})
+		const pictures = pics ? pics.map((pic,index,arr) =>`<img src=${pic}  class="post-img" style="width:${containerWidth/arr.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`)
 			.join(" ")
 			: '';
 
