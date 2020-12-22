@@ -742,7 +742,6 @@ if (slider.classList.contains('visible')){
 }
 	if(event.target.classList.contains('left-arrow')){
 		sliderViewer();
-		console.log(event.target);
 	}
 	else if (event.target.classList.contains('right-arrow')){
 		sliderViewer (1);
