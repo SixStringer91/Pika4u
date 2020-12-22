@@ -607,6 +607,12 @@ const liveSearch=({postStarter,showAllPosts})=>{
 		else {
 		postStarter(setPosts.allPosts,showAllPosts)
 		}
+		if (setPosts.commentsMode) {
+			setPosts.commentsMode = 0;
+			addComment.style.display = "";
+			commentBlock.style.display = "";
+		}
+
 	Array.prototype.forEach.call(postWrapper.children,post=>post.style.opacity = 1)
 }
 
@@ -616,6 +622,7 @@ const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
 		const headerItems = document.querySelectorAll('.header-menu-link');
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		event.target.classList.add('chosen');
+		
 	if(event.target.innerHTML === 'Лучшее'){
 		array.sort((a,b) => {
 			const aLike = a.likes ? a.likes.length : 0;
