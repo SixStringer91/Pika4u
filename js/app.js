@@ -14,6 +14,7 @@ firebase.initializeApp(firebaseConfig);
 // console.log(firebase);
 
 const modal = document.querySelector(".modal-wrapper");
+const slider = document.querySelector('.slider-wrapper');
 const modalInner = document.querySelector(".modal-text");
 const modalConfirm = document.querySelector(".modal-confirm");
 const toggle = document.getElementById("menu-toogle");
@@ -39,6 +40,8 @@ const commentHeader = document.querySelector(".comment-header");
 const searchInput = document.querySelector('.search-input');
 const headerMenu = document.querySelector('.header-menu');
 let postViewer;
+let sliderViewer;
+
 
 const registration = {
 	user: null,
@@ -294,7 +297,12 @@ const setPosts = {
 			this.tagFilter(target.text,postStarter,showAllPosts,animation);
 		}
 		else if (target.classList.contains("post-img")){
-			console.log(target);
+			const pics = Array.prototype.map.call(target.closest('.post-pics').children,obj=>obj.currentSrc);
+			const current = pics.findIndex(obj => obj===target.currentSrc);
+			const image = slider.querySelector('img')
+			slider.classList.toggle('visible');
+			image.src = pics[current];
+			sliderViewer = sliderHandler(pics,current)
 		}
 	},
 
@@ -424,15 +432,34 @@ const returnToMain = (postArr,postStarter,callback,animation) => {
 postStarter(postArr,callback,animation);
 };
 
+const sliderHandler = (pics,ind) => {
+		const sliderImg = slider.querySelector('img');
+		let current = ind;
+			return (side)=>{
+
+				if(side){
+					sliderImg.src = current===pics.length-1 ? pics[current=0] : pics[++current];
+				}	else {
+					sliderImg.src = current===0 ? pics[current=pics.length-1] : pics[--current];
+				}
+
+			}
+}
+
+
 const postStarter = (postArr, callback, animation)=>{
 	postWrapper.innerHTML = ``;
 	postViewer = callback(postArr);
 	while(postWrapper.clientHeight<window.innerHeight){
-	const checker = postViewer();
-	if(checker) break;
+		const checker = postViewer();
+		if(checker) break;
+		}
+		if(animation)animation();
 	}
-	if(animation)animation();
-}
+
+
+
+
 
 const showAllPosts = (posts) => {
 	let count = 0;
@@ -673,7 +700,7 @@ const init = () => {
 	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
-		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter,animation});
+		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter,animation,sliderHandler});
 	});
 
 	addComment.addEventListener("submit", event => {
@@ -689,6 +716,22 @@ const init = () => {
 		headerItems[0].classList.add('chosen')
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 	});
+
+slider.addEventListener('click',(event)=>{
+if (slider.classList.contains('visible')){
+	if(event.target.classList.contains('visible')){
+		event.target.classList.remove('visible');
+	}
+}
+	if(event.target.classList.contains('left-arrow')){
+		sliderViewer();
+		console.log(event.target);
+	}
+	else if (event.target.classList.contains('right-arrow')){
+		sliderViewer (1);
+	}
+
+})
 
 	searchInput.addEventListener('keyup', () =>liveSearch({postStarter,showAllPosts}));
 
