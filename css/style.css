@@ -566,6 +566,7 @@ margin-top: 12px;
 
 .add-post.visible{
   display: none;
+
 }
 .user{
   display: flex;
@@ -808,11 +809,24 @@ resize: none;
 width: 100%;
 }
 
+.add-photo-input{
+display: none;
+height: 0;
+
+}
+
+.add-photo-input.visible{
+  width: 100%;
+  height: 70px;
+  display: inline-block;
+}
+
+.add-photo-input input{
+  width: 100%;
+}
 
 @media(max-width:990px){
-  /* .post:last-child{
-    margin-bottom: 64px;
-  } */
+
   .add-post  {
   width: 100%;
 }

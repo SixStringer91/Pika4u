@@ -33,6 +33,7 @@ const postWrapper = document.querySelector(".posts");
 const commentsWrapper = document.querySelector(".comment-block_content");
 const buttNewPost = document.querySelector(".button-new-post");
 const addPost = document.querySelector(".add-post");
+const addPhotoToPost = document.querySelector('.add-photo')
 const commentBlock = document.querySelector(".comment-block");
 const addComment = document.querySelector(".add-comment");
 const inputGroup = document.querySelector(".input-group");
@@ -639,9 +640,11 @@ const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
 	
 }
 ///double code
-setPosts.commentsMode = 0;
-addComment.style.display = "";
-commentBlock.style.display = "";
+if (setPosts.commentsMode) {
+	setPosts.commentsMode = 0;
+	addComment.style.display = "";
+	commentBlock.style.display = "";
+}
 ///double code
 postStarter(array,showAllPosts,animation)
 }
@@ -697,6 +700,7 @@ const init = () => {
 
 	addPost.addEventListener("submit", event => {
 		event.preventDefault();
+	console.dir(addPost.button);
 		if(!setPosts.makePost(addPost,toggleModal)){
 		postWrapper.classList.toggle("visible");
 		addPost.classList.toggle("visible");
@@ -723,6 +727,12 @@ const init = () => {
 		headerItems[0].classList.add('chosen')
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 	});
+
+	addPhotoToPost.addEventListener('click',event =>{
+		const input = addPost.querySelector('.add-photo-input')
+		input.classList.toggle('visible');
+	})
+
 
 slider.addEventListener('click',(event)=>{
 if (slider.classList.contains('visible')){

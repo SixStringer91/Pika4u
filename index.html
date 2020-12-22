@@ -94,7 +94,10 @@
   <input type="text" name="title" class="add-title" placeholder="Заголовок поста">
   <textarea name="text" id="text" class="add-text" placeholder="Текст вашего поста"></textarea>
   <input type="text" name="tags" class="add-title" placeholder="Введите теги через запятую">
-  <input type="text" name="pic" class="add-title" placeholder="Введите URL картинок через запятую">
+  <label for="" class="add-photo-input">
+    <input type="text" name="pic" class="add-title " placeholder="Введите URL картинок через запятую">
+  </label>
+
 <div class="add-buttons">
   <button type="submit" class="button button-add-text"><svg width='20' height = '20' class="icon icon-flame">
     <use xlink:href="img/icons.svg#flame"></use>
@@ -104,7 +107,7 @@
     <use xlink:href="img/icons.svg#video"></use>
   </svg>Видео
 </button> -->
-<button class="button button-outline">
+<button type="button" class="button button-outline add-photo">
   <svg width='14' height='12' class="icon icon-photo">
     <use xlink:href="img/icons.svg#photo"></use>
   </svg>Фото
