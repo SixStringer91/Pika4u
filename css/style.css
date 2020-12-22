@@ -1,3 +1,6 @@
+
+
+
 *{
   
   box-sizing: border-box;
@@ -228,18 +231,16 @@ display: flex;
 width: 100%;
 justify-content: space-around;
 align-items: center;
+margin-bottom: 20px;
 }
 
 .post-img {
-display: block;
-width: 100%;
-}
-
-
-.post-text img{
   display: block;
   width: 100%;
+  cursor: pointer;
 }
+
+
 
 .post-body{
   padding-left: 35px;

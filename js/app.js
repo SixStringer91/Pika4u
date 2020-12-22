@@ -1,6 +1,5 @@
 'use strict'
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -190,11 +189,11 @@ const setPosts = {
 				.split(" ")
 				.join("")
 				.split(",") : null,
-				tags: 	tags.value
+				tags: tags.value ?	tags.value
 				.replace(/<\/?[^>]+(>|$)/g, "")
 				.split(" ")
 				.join("")
-				.split(","),
+				.split(",") : null,
 				mail: 	user.email,
 				author: user.displayName,
 				avatar: user.photoURL,
@@ -280,7 +279,7 @@ const setPosts = {
 				this.editLikes(postId);
 			} else if (target.classList.contains("icon-comment")) {
 				commentFilter({showAllPosts,showComments})
-				this.commentsMode = !setPosts.commentsMode? 1 : this.commentsMode;
+				this.commentsMode = !setPosts.commentsMode ? 1 : this.commentsMode;
 				this.setComments({
 					postId,
 					postStarter,
@@ -294,6 +293,9 @@ const setPosts = {
 			}
 		} else if (target.classList.contains("tag")) {
 			this.tagFilter(target.text,postStarter,showAllPosts,animation);
+		}
+		else if (target.classList.contains("post-img")){
+			console.log(target);
 		}
 	},
 
@@ -373,7 +375,7 @@ const scroller = (callback)=>{
 	);
 	if(scrollY+100>=scrollHeight-document.documentElement.clientHeight){
 		postViewer();
-		callback();
+		if(callback)callback();
 	}
 
 }
@@ -439,7 +441,7 @@ const showAllPosts = (posts) => {
 if(count>=posts.length)return 1
 if(count<posts.length){
 		const {id,title,text,pics,tags,author,avatar,date,likes,comments} = posts[count];
-		const tagObj = tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ");
+		const tagObj = tags? tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ") : '';
 		const postLikes = !likes ? 0 : likes.length;
 		const postComments = !comments ? 0 : comments.length;
 		const findUserLike =
@@ -653,7 +655,7 @@ const init = () => {
 	buttNewPost.addEventListener("click", () => {
 		postWrapper.classList.toggle("visible");
 		addPost.classList.toggle("visible");
-		const isComments = commentBlock.style.display==='block';
+		const isComments = commentBlock.style.display === 'block';
 		if(setPosts.commentsMode){
 			addComment.style.display = isComments ? "" : 'block';
 			commentBlock.style.display = isComments ? "" : 'block';
@@ -687,7 +689,6 @@ const init = () => {
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		headerItems[0].classList.add('chosen')
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
-		
 	});
 
 	searchInput.addEventListener('keyup', () =>liveSearch({postStarter,showAllPosts}));
@@ -717,7 +718,6 @@ const init = () => {
 		img.style.width = `${width/arr.length - 70/arr.length*2}px`;	
 		img.style.margin = arr.length===1 ? '0 auto':`${Math.floor(10/arr.length)}px`;
 }
-
 }
 ))});
 
