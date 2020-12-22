@@ -39,7 +39,6 @@ const commentHeader = document.querySelector(".comment-header");
 const searchInput = document.querySelector('.search-input');
 const headerMenu = document.querySelector('.header-menu');
 let postViewer;
-console.log(postWrapper.children);
 
 const registration = {
 	user: null,
@@ -452,8 +451,7 @@ if(count<posts.length){
 		const pictures = pics ? pics.map((pic,index,arr) =>`<img src=${pic}  class="post-img" style="width:${containerWidth/arr.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`)
 			.join(" ")
 			: '';
-
-		postWrapper.innerHTML += `
+		const addedPost = `
   <section class="post" numb = "${id}">
   <div class="post-body">
     <h2 class="post-title">
@@ -500,6 +498,7 @@ if(count<posts.length){
   </div>
 	</section>`;
 	
+	postWrapper.insertAdjacentHTML('beforeend', addedPost)
 	count>posts.length ? count = count : count++;
 };
 }
