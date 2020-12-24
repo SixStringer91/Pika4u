@@ -1,5 +1,4 @@
 'use strict'
-
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -300,10 +299,8 @@ const setPosts = {
 		else if (target.classList.contains("post-img")){
 			const pics = Array.prototype.map.call(target.closest('.post-pics').children,obj=>obj.currentSrc);
 			const current = pics.findIndex(obj => obj===target.currentSrc);
-			const image = slider.querySelector('img')
 			slider.classList.toggle('visible');
-			image.src = pics[current];
-			sliderViewer = sliderHandler(pics,current)
+			(sliderViewer = sliderHandler(pics,current))()
 		}
 	},
 
@@ -434,19 +431,24 @@ postStarter(postArr,callback,animation);
 };
 
 const sliderHandler = (pics,ind) => {
-		const sliderImg = slider.querySelector('img');
-		let current = ind;
-			return (side)=>{
+		const pix = pics.map(pic => {
+				const img = new Image();
+				img.src = pic
+				return img
+		});
 
-				if(side){
-					sliderImg.src = current===pics.length-1 ? pics[current=0] : pics[++current];
-				}	else {
-					sliderImg.src = current===0 ? pics[current=pics.length-1] : pics[--current];
+		return (side)=>{
+			const sliderImg = slider.querySelector('img');	
+	
+				if(side===1){
+					ind = ind===pix.length-1 ? 0 : ++ind;
+				}	else if (side===0){
+					ind = ind===0 ? pix.length-1 : --ind;
 				}
-
+			
+				slider.replaceChild(pix[ind],sliderImg)	
 			}
 }
-
 
 const postStarter = (postArr, callback, animation)=>{
 	postWrapper.innerHTML = ``;
@@ -457,10 +459,6 @@ const postStarter = (postArr, callback, animation)=>{
 		}
 		if(animation)animation();
 	}
-
-
-
-
 
 const showAllPosts = (posts) => {
 	let count = 0;
