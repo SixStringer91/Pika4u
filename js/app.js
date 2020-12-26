@@ -1,4 +1,6 @@
 'use strict'
+
+
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -274,7 +276,7 @@ const setPosts = {
 			});
 	},
 
-	iconHandler({target,postStarter,showAllPosts,showComments,commentFilter,postSaver,animation}){
+	iconHandler({target,postStarter,showAllPosts,showComments,commentFilter,postSaver,animation,animate}){
 		if (target.classList.contains("icon")) {
 			const postId = target.closest(".post").attributes.numb.nodeValue;
 			if (target.classList.contains("icon-like") && registration.user) {
@@ -300,7 +302,7 @@ const setPosts = {
 			const pics = Array.prototype.map.call(target.closest('.post-pics').children,obj=>obj.currentSrc);
 			const current = pics.findIndex(obj => obj===target.currentSrc);
 			slider.classList.toggle('visible');
-			(sliderViewer = sliderHandler(pics,current))()
+			(sliderViewer = sliderHandler(pics,current,animate))()
 		}
 	},
 
@@ -430,7 +432,36 @@ const returnToMain = (postArr,postStarter,callback,animation) => {
 postStarter(postArr,callback,animation);
 };
 
-const sliderHandler = (pics,ind) => {
+
+const animate = (options)=>{
+let {sliderImg,sliderImgWidth,change,currentPosition,ind,pix,side} = options;
+let req;
+
+const anim = ()=>{
+	if (currentPosition>window.innerWidth+sliderImgWidth&&!change){
+		slider.replaceChild(pix[ind],sliderImg);
+		sliderImg = pix[ind];
+		sliderImgWidth = parseFloat(getComputedStyle(sliderImg).width)*-1;
+		sliderImg.style.left = `${sliderImgWidth}px`;
+		currentPosition = 0;
+		change+=1;
+	}
+	if(currentPosition>=window.innerWidth/2+sliderImgWidth/10&&change){
+		
+		sliderImg.style.left = '';
+		cancelAnimationFrame(req);
+	}
+	else {
+		sliderImg.style.left = `${currentPosition+=(40)}px`
+		req = requestAnimationFrame(anim);
+	}
+}
+return anim 
+	}
+
+
+
+const sliderHandler = (pics,ind,animate) => {
 		const pix = pics.map(pic => {
 				const img = new Image();
 				img.src = pic
@@ -438,17 +469,39 @@ const sliderHandler = (pics,ind) => {
 		});
 
 		return (side)=>{
-			const sliderImg = slider.querySelector('img');	
-	
+		  const options = {
+				pix : pix,
+				sliderImg : slider.querySelector('img'),	
+				ind : ind,
+				change : 0,
+				innerHandler (){
+					(()=>{
+						this.sliderImgWidth = parseFloat(getComputedStyle(this.sliderImg).width);
+						this.currentPosition = parseFloat(getComputedStyle(this.sliderImg).left);
+					})()
+				},	
+		}
+
+			if(side){
 				if(side===1){
-					ind = ind===pix.length-1 ? 0 : ++ind;
-				}	else if (side===0){
-					ind = ind===0 ? pix.length-1 : --ind;
-				}
-			
-				slider.replaceChild(pix[ind],sliderImg)	
+					options.innerHandler();
+					options.side = side;
+					options.ind = ind===pix.length-1 ? ind=0 : ++ind;
+					(animate(options))();
+					}
+					// ind = ind===pix.length-1 ? 0 : ++ind;
+				
+				// else if (side===0){
+				// 	ind = ind===0 ? pix.length-1 : --ind;
+				// }
+			}
+			else slider.replaceChild(pix[options.ind],options.sliderImg)	
 			}
 }
+
+
+
+
 
 const postStarter = (postArr, callback, animation)=>{
 	postWrapper.innerHTML = ``;
@@ -709,7 +762,7 @@ const init = () => {
 	postWrapper.addEventListener("click", event => {
 		event.preventDefault();
 		const target = event.target
-		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter,animation,sliderHandler});
+		setPosts.iconHandler({target, showAllPosts, showComments,commentFilter,postStarter,animation,sliderHandler,animate});
 	});
 
 	addComment.addEventListener("submit", event => {
@@ -739,7 +792,7 @@ if (slider.classList.contains('visible')){
 	}
 }
 	if(event.target.classList.contains('left-arrow')){
-		sliderViewer();
+		sliderViewer(-1);
 	}
 	else if (event.target.classList.contains('right-arrow')){
 		sliderViewer (1);
