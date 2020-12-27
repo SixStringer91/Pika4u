@@ -436,23 +436,23 @@ postStarter(postArr,callback,animation);
 const animate = (options)=>{
 let {sliderImg,sliderImgWidth,change,currentPosition,ind,pix,side} = options;
 let req;
-
+console.log(ind);
 const anim = ()=>{
-	if (currentPosition>window.innerWidth+sliderImgWidth&&!change){
+	if ((currentPosition>window.innerWidth+sliderImgWidth&&!change)||(currentPosition<(0-sliderImgWidth)&&!change)){
 		slider.replaceChild(pix[ind],sliderImg);
 		sliderImg = pix[ind];
 		sliderImgWidth = parseFloat(getComputedStyle(sliderImg).width)*-1;
 		sliderImg.style.left = `${sliderImgWidth}px`;
-		currentPosition = 0;
+		currentPosition = side===1 ? 0 : innerWidth;
 		change+=1;
 	}
-	if(currentPosition>=window.innerWidth/2+sliderImgWidth/10&&change){
-		
+	if((currentPosition>=window.innerWidth/2+sliderImgWidth/10&&change&&side===1)||(currentPosition<=window.innerWidth/2-sliderImgWidth/10&&change&&side===-1)){
 		sliderImg.style.left = '';
+		slider.addEventListener('click',picsMode);
 		cancelAnimationFrame(req);
 	}
 	else {
-		sliderImg.style.left = `${currentPosition+=(40)}px`
+		sliderImg.style.left = `${currentPosition+=(40)*side}px`
 		req = requestAnimationFrame(anim);
 	}
 }
@@ -475,27 +475,23 @@ const sliderHandler = (pics,ind,animate) => {
 				ind : ind,
 				change : 0,
 				innerHandler (){
-					(()=>{
 						this.sliderImgWidth = parseFloat(getComputedStyle(this.sliderImg).width);
 						this.currentPosition = parseFloat(getComputedStyle(this.sliderImg).left);
-					})()
-				},	
-		}
-
+					}
+				};
+		
 			if(side){
-				if(side===1){
+					slider.removeEventListener('click', (event)=>picsMode(event));
 					options.innerHandler();
 					options.side = side;
-					options.ind = ind===pix.length-1 ? ind=0 : ++ind;
+					if (ind+side>pix.length-1) ind = 0;
+					else if (ind+side<0) ind = pix.length-1;
+					else ind += side;
+					options.ind = ind;
 					(animate(options))();
-					}
-					// ind = ind===pix.length-1 ? 0 : ++ind;
-				
-				// else if (side===0){
-				// 	ind = ind===0 ? pix.length-1 : --ind;
-				// }
 			}
-			else slider.replaceChild(pix[options.ind],options.sliderImg)	
+
+			else slider.replaceChild(pix[options.ind],options.sliderImg);
 			}
 }
 
@@ -700,6 +696,24 @@ if (setPosts.commentsMode) {
 postStarter(array,showAllPosts,animation)
 }
 }
+
+const picsMode = (event)=>{
+	if (slider.classList.contains('visible')){
+		if(event.target.classList.contains('visible')){
+			event.target.classList.remove('visible');
+		}
+	}
+	if(event.target.classList.contains('arrow')){
+		if(event.target.classList.contains('left-arrow')){
+			sliderViewer(-1);
+		}
+		else if (event.target.classList.contains('right-arrow')){
+			sliderViewer (1);
+		}
+		slider.removeEventListener('click',picsMode);
+	}
+	}
+
 const init = () => {
 	toggle.addEventListener("click", event => {
 		event.preventDefault();
@@ -785,20 +799,8 @@ const init = () => {
 	})
 
 
-slider.addEventListener('click',(event)=>{
-if (slider.classList.contains('visible')){
-	if(event.target.classList.contains('visible')){
-		event.target.classList.remove('visible');
-	}
-}
-	if(event.target.classList.contains('left-arrow')){
-		sliderViewer(-1);
-	}
-	else if (event.target.classList.contains('right-arrow')){
-		sliderViewer (1);
-	}
+	slider.addEventListener('click',picsMode);
 
-})
 
 	searchInput.addEventListener('keyup', () =>liveSearch({postStarter,showAllPosts}));
 
@@ -829,11 +831,6 @@ if (slider.classList.contains('visible')){
 }
 }
 ))});
-
-
 };
 
 document.addEventListener("DOMContentLoaded", init);
-setPosts.allPosts.shift();
-
-window.onload = () => setPosts.loaded = 1;
