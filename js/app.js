@@ -1,6 +1,4 @@
 'use strict'
-
-
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -46,8 +44,10 @@ let sliderViewer;
 
 
 const registration = {
+	
 	user: null,
 	initUser(handler, showPosts) {
+		
 		firebase.auth().onAuthStateChanged((user) => {
 			  console.log(user);
 			if (user) {
@@ -166,12 +166,46 @@ const registration = {
 };
 
 const setPosts = {
-	loaded:0,
 	commentsMode: 0,
 	likedPost: 0,
 	userSubs: null,
 	allPosts: [],
+
+
+	//TODO
+	getUserSavedPosts(){
+		return new Promise((resolve)=>{
+			firebase.database().ref("users/")
+				.orderByChild("name")
+				.on("child_added", (data) => {
+					if(registration.user.email===data.val().email){
+						const subsData =	data.val().savedPosts
+			 			resolve({name: data.ref.path.pieces_[1],savedPosts: subsData ? subsData : []});
+						}
+						})
+		
+		})
+	},
+//TODO
+
+	postSaver (postId){
 	
+		this.getUserSavedPosts()
+			.then((data)=> {
+				const findPost = data.savedPosts.findIndex((post)=>post===postId)
+				console.log(findPost);
+				if(findPost>=0){
+					data.savedPosts.splice(findPost,1)
+				}
+				else data.savedPosts.push(postId)
+				firebase.database().ref(`users/${data.name}`).update({
+				'savedPosts' : data.savedPosts
+				})
+		console.log(data.savedPosts)
+		});
+
+	},
+
 	makePost(form, modalHandler) {
 		const user = firebase.auth().currentUser;
 		const { title, text, tags, pic } = form.elements;
@@ -252,11 +286,11 @@ const setPosts = {
 				if (setPosts.commentsMode&&!this.likedPost) {
 					const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 					this.setComments({
-						postId,
-						postStarter,
-						showAllPosts,
-						showComments
-					});
+														postId,
+														postStarter,
+														showAllPosts,
+														showComments
+													});
 				} else if (!setPosts.commentsMode&&showAllPosts&&!this.likedPost) {
 					postStarter(this.allPosts, showAllPosts, animation);
 				}
@@ -293,8 +327,9 @@ const setPosts = {
 				});
 			}
 			else if (target.classList.contains("icon-save")){
-				postSaver(postId)
+				this.postSaver(postId)
 			}
+
 		} else if (target.classList.contains("tag")) {
 			this.tagFilter(target.text,postStarter,showAllPosts,animation);
 		}
@@ -432,11 +467,9 @@ const returnToMain = (postArr,postStarter,callback,animation) => {
 postStarter(postArr,callback,animation);
 };
 
-
 const animate = (options)=>{
 let {sliderImg,sliderImgWidth,change,currentPosition,ind,pix,side} = options;
 let req;
-console.log(ind);
 const anim = ()=>{
 	if ((currentPosition>window.innerWidth+sliderImgWidth&&!change)||(currentPosition<(0-sliderImgWidth)&&!change)){
 		slider.replaceChild(pix[ind],sliderImg);
@@ -458,8 +491,6 @@ const anim = ()=>{
 }
 return anim 
 	}
-
-
 
 const sliderHandler = (pics,ind,animate) => {
 		const pix = pics.map(pic => {
@@ -554,10 +585,10 @@ if(count<posts.length){
   </svg>
   <span class="comments-counter">${postComments}</span>
   </button>
-  <!--<button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
+  <button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
     <use xlink:href="img/icons.svg#save"></use>
   </svg></button>
-  <button  class="post-button share">
+  <!--<button  class="post-button share">
     <svg width='17' height = '19'  class="icon icon-share">
       <use xlink:href="img/icons.svg#share"></use>
     </svg>
@@ -670,30 +701,47 @@ const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
 		const headerItems = document.querySelectorAll('.header-menu-link');
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		event.target.classList.add('chosen');
-		
+		new Promise ((resolve)=>{
 	if(event.target.innerHTML === 'Лучшее'){
 		array.sort((a,b) => {
 			const aLike = a.likes ? a.likes.length : 0;
 			const bLike = b.likes ? b.likes.length : 0;
 			return bLike - aLike;
 		});
+		resolve()
 }
-	 if (event.target.innerHTML === 'Горячее'){
+	else if (event.target.innerHTML === 'Горячее'){
 		array.sort((a,b) => {
 			const aCom = a.comments ? a.comments.length : 0;
 			const bCom = b.comments ? b.comments.length : 0;
 			return bCom - aCom;
 		});
-	
+		resolve()
 }
-///double code
-if (setPosts.commentsMode) {
-	setPosts.commentsMode = 0;
-	addComment.style.display = "";
-	commentBlock.style.display = "";
-}
-///double code
-postStarter(array,showAllPosts,animation)
+//TODO
+else if(event.target.innerHTML === 'Сохраненное'){
+setPosts.getUserSavedPosts().then((data)=>{
+const savedPosts = array.filter(post=>{
+if(data.savedPosts.find(saved => post.id === saved))return post;
+});
+array.splice(0,array.length);
+savedPosts.forEach((obj)=>array.push(obj));
+resolve()
+});
+//TODO
+}}).then(()=>{
+	if (setPosts.commentsMode) {
+		setPosts.commentsMode = 0;
+		addComment.style.display = "";
+		commentBlock.style.display = "";
+	}
+	///double code
+	console.log(array);
+	postStarter(array,showAllPosts,animation)
+
+})
+
+
 }
 }
 
@@ -713,6 +761,10 @@ const picsMode = (event)=>{
 		slider.removeEventListener('click',picsMode);
 	}
 	}
+
+
+
+	
 
 const init = () => {
 	toggle.addEventListener("click", event => {
@@ -793,7 +845,7 @@ const init = () => {
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 	});
 
-	addPhotoToPost.addEventListener('click',event =>{
+	addPhotoToPost.addEventListener('click', () =>{
 		const input = addPost.querySelector('.add-photo-input')
 		input.classList.toggle('visible');
 	})
