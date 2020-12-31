@@ -187,9 +187,7 @@ const setPosts = {
 		})
 	},
 //TODO
-
 	postSaver (postId){
-	
 		this.getUserSavedPosts()
 			.then((data)=> {
 				const findPost = data.savedPosts.findIndex((post)=>post===postId)
@@ -201,11 +199,10 @@ const setPosts = {
 				firebase.database().ref(`users/${data.name}`).update({
 				'savedPosts' : data.savedPosts
 				})
-		console.log(data.savedPosts)
+				this.savedPosts = data
 		});
 
 	},
-
 	makePost(form, modalHandler) {
 		const user = firebase.auth().currentUser;
 		const { title, text, tags, pic } = form.elements;
@@ -249,9 +246,6 @@ const setPosts = {
 	sendPosts() {
 		firebase.database().ref("post").set(this.allPosts);
 	},
-	// sendUsers(){
-	// 	firebase.database().ref("users").set(this.userSubs);
-	// },
 	addCommentToPosts({showAllPosts,showComments,postStarter}){
 		const user = registration.user;
 		const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
@@ -329,7 +323,9 @@ const setPosts = {
 				});
 			}
 			else if (target.classList.contains("icon-save")){
-				this.postSaver(postId)
+				this.postSaver(postId);
+				if(target.classList.contains('chosen')) target.classList.remove('chosen');
+				else target.classList.add('chosen');
 			}
 
 		} else if (target.classList.contains("tag")) {
@@ -548,7 +544,6 @@ const showAllPosts = (posts) => {
 	return ()=>{
 if(count>=posts.length)return 1
 if(count<posts.length){
-	console.log(data);
 		const {id,title,text,pics,tags,author,avatar,date,likes,comments} = posts[count];
 		const tagObj = tags? tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ") : '';
 		const postLikes = !likes ? 0 : likes.length;
@@ -567,18 +562,10 @@ if(count<posts.length){
 		const addedPost = `
   <section class="post" numb = "${id}">
   <div class="post-body">
-    <h2 class="post-title">
-      ${title}
-    </h2>
-			<p class="post-text">
-      ${text}
-			</p>
-			<div class="post-pics">
-			${pictures}
-			</div>
-      <div class="tags">
-      ${tagObj}
-      </div>  
+    <h2 class="post-title">${title}</h2>
+			<p class="post-text">${text}</p>
+			<div class="post-pics">${pictures}</div>
+      <div class="tags">${tagObj}</div>  
   </div>
   <div class="post-footer">
   <div class="post-buttons">
@@ -734,12 +721,14 @@ if(data.savedPosts.find(saved => post.id === saved))return post;
 });
 array.splice(0,array.length);
 savedPosts.forEach((obj)=>array.push(obj));
+setPosts.savedPostsMode = 1
 resolve()
 });
 //TODO
 }
 else resolve();
 }).then(()=>{
+	if(event.target.innerHTML !== 'Сохраненное')setPosts.savedPostsMode = 0
 	if (setPosts.commentsMode) {
 		setPosts.commentsMode = 0;
 		addComment.style.display = "";
