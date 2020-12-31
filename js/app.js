@@ -170,7 +170,7 @@ const setPosts = {
 	likedPost: 0,
 	userSubs: null,
 	allPosts: [],
-
+	savedPosts : '',
 
 	//TODO
 	getUserSavedPosts(){
@@ -283,6 +283,8 @@ const setPosts = {
 			.ref("post")
 			.on("value", (snapshot) => {
 				this.allPosts = snapshot.val() || [];
+				if(registration.user)
+				this.getUserSavedPosts().then((data)=>{this.savedPosts = data
 				if (setPosts.commentsMode&&!this.likedPost) {
 					const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
 					this.setComments({
@@ -306,7 +308,7 @@ const setPosts = {
 					});
 					this.likedPost=0;
 				}
-	
+			})
 			});
 	},
 
@@ -542,17 +544,22 @@ const postStarter = (postArr, callback, animation)=>{
 
 const showAllPosts = (posts) => {
 	let count = 0;
+	const data = setPosts.savedPosts
 	return ()=>{
 if(count>=posts.length)return 1
 if(count<posts.length){
+	console.log(data);
 		const {id,title,text,pics,tags,author,avatar,date,likes,comments} = posts[count];
 		const tagObj = tags? tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ") : '';
 		const postLikes = !likes ? 0 : likes.length;
 		const postComments = !comments ? 0 : comments.length;
 		const findUserLike =
 			registration.user && postLikes ? posts[count].likes.find((obj) => obj === registration.user.uid) : null;
+		const findSavedPost = registration.user && data.savedPosts ? data.savedPosts.find((obj)=>posts[count].id === obj) : null;
 		const switchColorLikes = findUserLike ? "chosen" : "";
 		const switchColorComments = setPosts.commentsMode ? "chosen" : "";
+		const switchColorSaved = findSavedPost ? "chosen" : "";
+	
 		const containerWidth = postWrapper.closest('.posts-wrapper').offsetWidth;
 		const pictures = pics ? pics.map((pic,index,arr) =>`<img src=${pic}  class="post-img" style="width:${containerWidth/arr.length-70/pics.length*2}px; margin: 0 ${Math.floor(5/pics.length)}px;" alt=""></img>`)
 			.join(" ")
@@ -585,7 +592,7 @@ if(count<posts.length){
   </svg>
   <span class="comments-counter">${postComments}</span>
   </button>
-  <button class="post-button save"><svg width='19' height = '19'  class="icon icon-save">
+	<button class="post-button save"><svg width='19' height = '19'  class="icon icon-save  ${switchColorSaved}">
     <use xlink:href="img/icons.svg#save"></use>
   </svg></button>
   <!--<button  class="post-button share">
@@ -702,6 +709,7 @@ const headerMenuHandler = ({event,postStarter,showAllPosts,animation})=>{
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
 		event.target.classList.add('chosen');
 		new Promise ((resolve)=>{
+
 	if(event.target.innerHTML === 'Лучшее'){
 		array.sort((a,b) => {
 			const aLike = a.likes ? a.likes.length : 0;
@@ -729,7 +737,9 @@ savedPosts.forEach((obj)=>array.push(obj));
 resolve()
 });
 //TODO
-}}).then(()=>{
+}
+else resolve();
+}).then(()=>{
 	if (setPosts.commentsMode) {
 		setPosts.commentsMode = 0;
 		addComment.style.display = "";

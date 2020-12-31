@@ -346,7 +346,7 @@ cursor: pointer;
  .icon-comment {
   margin-right: 6px;
 }
-.icon-like.chosen, .icon-comment.chosen{
+.icon-like.chosen, .icon-comment.chosen, .icon-save.chosen{
 fill:#6c9ec5;
 }
 
