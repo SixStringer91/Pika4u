@@ -324,8 +324,13 @@ const setPosts = {
 			}
 			else if (target.classList.contains("icon-save")){
 				this.postSaver(postId);
+	
 				if(target.classList.contains('chosen')) target.classList.remove('chosen');
 				else target.classList.add('chosen');
+				if(setPosts.savedPostsMode){
+					target.closest('.post').remove();
+					
+				}
 			}
 
 		} else if (target.classList.contains("tag")) {
@@ -840,12 +845,13 @@ const init = () => {
 		event.preventDefault();
 		const headerItems = document.querySelectorAll('.header-menu-link');
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
-		headerItems[0].classList.add('chosen')
+		setPosts.savedPosts = 0;
+		headerItems[0].classList.add('chosen');
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 	});
 
 	addPhotoToPost.addEventListener('click', () =>{
-		const input = addPost.querySelector('.add-photo-input')
+		const input = addPost.querySelector('.add-photo-input');
 		input.classList.toggle('visible');
 	})
 
