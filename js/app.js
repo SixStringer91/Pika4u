@@ -1,4 +1,10 @@
 'use strict'
+
+
+
+
+
+
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -39,6 +45,7 @@ const inputGroup = document.querySelector(".input-group");
 const commentHeader = document.querySelector(".comment-header");
 const searchInput = document.querySelector('.search-input');
 const headerMenu = document.querySelector('.header-menu');
+const postOfTheWeek = document.querySelector('.card');
 let postViewer;
 let sliderViewer;
 
@@ -199,7 +206,7 @@ const setPosts = {
 				firebase.database().ref(`users/${data.name}`).update({
 				'savedPosts' : data.savedPosts
 				})
-				this.savedPosts = data
+				this.savedPosts = data;
 		});
 
 	},
@@ -271,13 +278,13 @@ const setPosts = {
 	},
 
 	getPosts(postStarter, showAllPosts,showComments, animation) {
-	
+		return new Promise((resolve)=>{
 		firebase
 			.database()
 			.ref("post")
 			.on("value", (snapshot) => {
 				this.allPosts = snapshot.val() || [];
-				if(registration.user)
+				if(registration.user){ 
 				this.getUserSavedPosts().then((data)=>{this.savedPosts = data
 				if (setPosts.commentsMode&&!this.likedPost) {
 					const postId = postWrapper.querySelector(".post").attributes.numb.nodeValue;
@@ -302,8 +309,12 @@ const setPosts = {
 					});
 					this.likedPost=0;
 				}
-			})
-			});
+			})}
+			else postStarter(this.allPosts, showAllPosts, animation);
+			
+			resolve();})
+
+		})
 	},
 
 	iconHandler({target,postStarter,showAllPosts,showComments,commentFilter,postSaver,animation,animate}){
@@ -372,11 +383,12 @@ const setPosts = {
 		}
 		const findPosts = this.allPosts.filter((post) => {
 			let postEqual;
+			if(post.tags){
 			post.tags.forEach((obj) => {
 				if (obj === tag.slice(1, tag.length)) {
 					postEqual = obj;
 				}
-			});
+			})}
 			if (postEqual) return post;
 		});
 		postStarter(findPosts,showAllPosts,animation);
@@ -467,6 +479,8 @@ const returnToMain = (postArr,postStarter,callback,animation) => {
 		postWrapper.classList.toggle("visible");
 		addPost.classList.add("visible");
 	}
+
+	
 postStarter(postArr,callback,animation);
 };
 
@@ -740,7 +754,6 @@ else resolve();
 		commentBlock.style.display = "";
 	}
 	///double code
-	console.log(array);
 	postStarter(array,showAllPosts,animation)
 
 })
@@ -766,11 +779,62 @@ const picsMode = (event)=>{
 	}
 	}
 
+const timer = ()=>{
+	const currentData = new Date();
+	const oneDay = 24*60*60*1000;
+	let lastWeekPosts,postsTop,title,text,id
+  const postsDate = setPosts.allPosts.map(post=>{
+		const index = post.date.indexOf(',');
+		let date,split
+		if(post.date.includes('M')){
+			split = post.date.slice(0,index).split('/');
+			date = new Date(split[2],split[0]-1,split[1]);
+			}
+		else {
+			split = post.date.slice(0,index).split('.');
+			date = new Date(split[2], split[1]-1, split[0]);
+			}
+		return {id: post.id, date: Date.parse(date)}
+		}
+		);
+ lastWeekPosts = postsDate.filter(obj=>{
+	let dayCount = 0
+	for (let i = currentData; i > obj.date ; i-=oneDay) {
+	dayCount++	
+	if (dayCount>20) break
+	}
+ if (dayCount<=7) return obj 
+});
 
-
-	
+postsTop = setPosts.allPosts
+	.filter(post =>{
+				if(lastWeekPosts.find((obj)=>post.id===obj.id)){
+					return post}})
+	.sort((a,b)=>{
+			const aLike = a.likes ? a.likes.length : 0;
+			const bLike = b.likes ? b.likes.length : 0;
+					return bLike - aLike;
+});
+id = postsTop[0].id;
+title = postsTop[0].title;
+text = postsTop[0].text.slice(0,postsTop[0].text.indexOf(' ',200));
+postOfTheWeek.innerHTML = `
+<div class="card-header">
+  <h2 class="card-title">
+    Пост недели
+  </h2>
+</div>
+<div class="card-body" id = ${id}>
+<a href="#" class="card-body-title">${title}</a>
+<p class="card-text">
+  ${text}...
+</p>
+</div>
+`
+}
 
 const init = () => {
+	
 	toggle.addEventListener("click", event => {
 		event.preventDefault();
 		sideBar.classList.toggle("visible"); //burger-menu
@@ -845,7 +909,7 @@ const init = () => {
 		event.preventDefault();
 		const headerItems = document.querySelectorAll('.header-menu-link');
 		Array.prototype.forEach.call(headerItems,obj=>obj.classList.remove('chosen'));
-		setPosts.savedPosts = 0;
+		setPosts.savedPostsMode = 0;
 		headerItems[0].classList.add('chosen');
 		returnToMain(setPosts.allPosts, postStarter, showAllPosts,animation);
 	});
@@ -868,7 +932,9 @@ const init = () => {
 
 	modalConfirm.addEventListener("click", () => toggleModal());
 
-	registration.initUser(toggleAuth, () => setPosts.getPosts(postStarter, showAllPosts, showComments,animation));
+	registration.initUser(toggleAuth, () => {
+		setPosts.getPosts(postStarter, showAllPosts, showComments,animation).then(()=>timer())
+	});
 
 
 
