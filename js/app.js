@@ -1,10 +1,4 @@
 'use strict'
-
-
-
-
-
-
 const firebaseConfig = {
 	apiKey: "AIzaSyDOTTlPMSSWRt28FlIKZVrUdMhxYzFa-l0",
 	authDomain: "picachu-44ee1.firebaseapp.com",
@@ -214,6 +208,13 @@ const setPosts = {
 		const user = firebase.auth().currentUser;
 		const { title, text, tags, pic } = form.elements;
 		let message;
+		const replacer = arg => arg.replace(/<\/?[^>]+(>|$)/g, "");
+		const editFunc = (arg,handler)=>{
+			if(arg){
+			return handler(arg).split(" ").join("").split(",")
+			}
+			else return null
+		}
 		if (title.value.length < 3) {
 			message = "Название поста слишком короткое!";
 		} else if (text.value.length < 20) {
@@ -222,20 +223,10 @@ const setPosts = {
 			this.allPosts.unshift({
 				id: 		`postID${(+new Date())
 				.toString(16)}-${user.uid}`,
-				title: 	title.value
-				.replace(/<\/?[^>]+(>|$)/g, ""),
-				text:		text.value
-				.replace(/<\/?[^>]+(>|$)/g, ""),
-				pics: pic.value ? pic.value 
-				.replace(/<\/?[^>]+(>|$)/g, "")
-				.split(" ")
-				.join("")
-				.split(",") : null,
-				tags: tags.value ?	tags.value
-				.replace(/<\/?[^>]+(>|$)/g, "")
-				.split(" ")
-				.join("")
-				.split(",") : null,
+				title: 	replacer(title.value),
+				text:		replacer(text.value),
+				pics: editFunc(pic.value,replacer),
+				tags: editFunc(tags.value,replacer),
 				mail: 	user.email,
 				author: user.displayName,
 				avatar: user.photoURL,
@@ -385,7 +376,7 @@ const setPosts = {
 			let postEqual;
 			if(post.tags){
 			post.tags.forEach((obj) => {
-				if (obj === tag.slice(1, tag.length)) {
+				if (obj === tag) {
 					postEqual = obj;
 				}
 			})}
@@ -564,7 +555,7 @@ const showAllPosts = (posts) => {
 if(count>=posts.length)return 1
 if(count<posts.length){
 		const {id,title,text,pics,tags,author,avatar,date,likes,comments} = posts[count];
-		const tagObj = tags? tags.map((tag) => `<a href="#${tag}" class="tag">#${tag}</a>`).join(" ") : '';
+		const tagObj = tags? tags.map((tag) => `<a href="#${tag}" class="tag">${tag}</a>`).join(" ") : '';
 		const postLikes = !likes ? 0 : likes.length;
 		const postComments = !comments ? 0 : comments.length;
 		const findUserLike =

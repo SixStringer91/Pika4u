@@ -24,7 +24,8 @@ body{
   font-style: normal;
 }
 p, .tag{
-  font-family: 'Lato', sans-serif;;
+  font-family: 'Lato', sans-serif;
+  cursor: pointer;
 }
 .header-menu-link.chosen, .header-menu-link:hover{
   color: #ffe100;
