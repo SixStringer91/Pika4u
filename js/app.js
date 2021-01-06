@@ -924,7 +924,14 @@ const init = () => {
 	modalConfirm.addEventListener("click", () => toggleModal());
 
 	registration.initUser(toggleAuth, () => {
-		setPosts.getPosts(postStarter, showAllPosts, showComments,animation).then(()=>timer())
+		setPosts.getPosts(postStarter, showAllPosts, showComments,animation).then(()=>{
+			try {
+				timer();
+			}
+				catch {
+		console.log('нет постов за неделю');
+				}
+		})
 	});
 
 
