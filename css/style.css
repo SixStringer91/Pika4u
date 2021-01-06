@@ -154,9 +154,7 @@ align-items: center;
 width: 50px;
 fill:#fff;
 }
-.icon-logo:hover{
-  fill:#ffe100;
-}
+
 .header-logo-pica{
   /* display: block; */
   order: 2;
